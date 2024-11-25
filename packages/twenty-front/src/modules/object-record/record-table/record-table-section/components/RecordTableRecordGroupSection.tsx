@@ -14,7 +14,7 @@ import { useRecoilComponentFamilyStateV2 } from '@/ui/utilities/state/component-
 import { useRecoilComponentFamilyValueV2 } from '@/ui/utilities/state/component-state/hooks/useRecoilComponentFamilyValueV2';
 import { useRecoilComponentValueV2 } from '@/ui/utilities/state/component-state/hooks/useRecoilComponentValueV2';
 
-const StyledContainer = styled.tr`
+const StyledTrContainer = styled.tr`
   cursor: pointer;
 `;
 
@@ -74,7 +74,7 @@ export const RecordTableRecordGroupSection = () => {
   }, [setIsRecordGroupTableSectionToggled]);
 
   return (
-    <StyledContainer onClick={handleDropdownToggle}>
+    <StyledTrContainer onClick={handleDropdownToggle}>
       <td></td>
       <StyledChevronContainer>
         <motion.span
@@ -106,6 +106,6 @@ export const RecordTableRecordGroupSection = () => {
       </StyledRecordGroupSection>
       <StyledEmptyTd></StyledEmptyTd>
       <StyledEmptyTd></StyledEmptyTd>
-    </StyledContainer>
+    </StyledTrContainer>
   );
 };

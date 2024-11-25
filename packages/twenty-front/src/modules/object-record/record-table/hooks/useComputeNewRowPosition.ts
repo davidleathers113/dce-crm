@@ -7,7 +7,10 @@ import { isDefined } from '~/utils/isDefined';
 export const useComputeNewRowPosition = () => {
   return useRecoilCallback(
     ({ snapshot }) =>
-      (result: DropResult, tableRowIds: string[]) => {
+      (
+        result: DropResult,
+        allRowIds: string[], // Flat array of all row IDs
+      ) => {
         if (!isDefined(result.destination)) {
           return;
         }
@@ -16,9 +19,9 @@ export const useComputeNewRowPosition = () => {
         const destinationIndex = result.destination.index;
         const sourceIndex = result.source.index;
 
-        const recordBeforeId = tableRowIds[destinationIndex - 1];
-        const recordDestinationId = tableRowIds[destinationIndex];
-        const recordAfterDestinationId = tableRowIds[destinationIndex + 1];
+        const recordBeforeId = allRowIds[destinationIndex - 1];
+        const recordDestinationId = allRowIds[destinationIndex];
+        const recordAfterDestinationId = allRowIds[destinationIndex + 1];
 
         const recordBefore = recordBeforeId
           ? snapshot
@@ -38,19 +41,19 @@ export const useComputeNewRowPosition = () => {
 
         const computeNewPosition = (destIndex: number, sourceIndex: number) => {
           const moveToFirstPosition = destIndex === 0;
-          const moveToLastPosition = destIndex === tableRowIds.length - 1;
+          const moveToLastPosition = destIndex === allRowIds.length - 1;
           const moveAfterSource = destIndex > sourceIndex;
 
-          const firstRecord = tableRowIds[0]
+          const firstRecord = allRowIds[0]
             ? snapshot
-                .getLoadable(recordStoreFamilyState(tableRowIds[0]))
+                .getLoadable(recordStoreFamilyState(allRowIds[0]))
                 .getValue()
             : null;
 
-          const lastRecord = tableRowIds[tableRowIds.length - 1]
+          const lastRecord = allRowIds[allRowIds.length - 1]
             ? snapshot
                 .getLoadable(
-                  recordStoreFamilyState(tableRowIds[tableRowIds.length - 1]),
+                  recordStoreFamilyState(allRowIds[allRowIds.length - 1]),
                 )
                 .getValue()
             : null;

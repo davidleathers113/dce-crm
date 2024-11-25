@@ -17,7 +17,10 @@ export const RecordTableBodyDroppable = ({
   const [v4Persistable] = useState(v4());
 
   return (
-    <Droppable droppableId={v4Persistable} isDropDisabled={isDropDisabled}>
+    <Droppable
+      droppableId={recordGroupId ?? v4Persistable}
+      isDropDisabled={isDropDisabled}
+    >
       {(provided) => (
         <RecordTableBody
           id={`record-table-body${recordGroupId ? `-${recordGroupId}` : ''}`}

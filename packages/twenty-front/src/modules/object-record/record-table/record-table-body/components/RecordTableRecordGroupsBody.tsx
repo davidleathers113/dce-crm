@@ -1,9 +1,9 @@
 import { RecordGroupContext } from '@/object-record/record-group/states/context/RecordGroupContext';
 import { visibleRecordGroupIdsComponentSelector } from '@/object-record/record-group/states/selectors/visibleRecordGroupIdsComponentSelector';
 import { RecordTableRecordGroupRows } from '@/object-record/record-table/components/RecordTableRecordGroupRows';
-import { RecordTableBodyDragDropContext } from '@/object-record/record-table/record-table-body/components/RecordTableBodyDragDropContext';
 import { RecordTableBodyDroppable } from '@/object-record/record-table/record-table-body/components/RecordTableBodyDroppable';
 import { RecordTableBodyLoading } from '@/object-record/record-table/record-table-body/components/RecordTableBodyLoading';
+import { RecordTableBodyRecordGroupDragDropContext } from '@/object-record/record-table/record-table-body/components/RecordTableBodyRecordGroupDragDropContext';
 import { RecordTablePendingRow } from '@/object-record/record-table/record-table-row/components/RecordTablePendingRow';
 import { RecordTableRecordGroupSection } from '@/object-record/record-table/record-table-section/components/RecordTableRecordGroupSection';
 import { isRecordTableInitialLoadingComponentState } from '@/object-record/record-table/states/isRecordTableInitialLoadingComponentState';
@@ -28,7 +28,7 @@ export const RecordTableRecordGroupsBody = () => {
   }
 
   return (
-    <RecordTableBodyDragDropContext>
+    <RecordTableBodyRecordGroupDragDropContext>
       {/** */}
       <RecordTableBodyDroppable isDropDisabled>
         <RecordTablePendingRow />
@@ -44,6 +44,6 @@ export const RecordTableRecordGroupsBody = () => {
           </RecordTableBodyDroppable>
         </RecordGroupContext.Provider>
       ))}
-    </RecordTableBodyDragDropContext>
+    </RecordTableBodyRecordGroupDragDropContext>
   );
 };
