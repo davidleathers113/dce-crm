@@ -3,22 +3,20 @@ ARG SPILO_VERSION=3.2-p1
 ARG WRAPPERS_VERSION=0.2.0
 
 # Build the mysql_fdw extension
-FROM debian:bookworm AS build-mysql_fdw
+FROM --platform=linux/arm64 debian:bookworm AS build-mysql_fdw
 ARG POSTGRES_VERSION
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Add this block before apt update
-RUN echo "Acquire::http::Pipeline-Depth 0;" > /etc/apt/apt.conf.d/99custom && \
-    echo "Acquire::http::No-Cache true;" >> /etc/apt/apt.conf.d/99custom && \
-    echo "Acquire::BrokenProxy    true;" >> /etc/apt/apt.conf.d/99custom
-
-RUN apt update && \
-    apt install -y \
-    build-essential \
-    git \
-    postgresql-server-dev-${POSTGRES_VERSION} \
-    default-libmysqlclient-dev && \
+# Clean apt lists and update
+RUN rm -rf /var/lib/apt/lists/* && \
+    apt-get clean && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+        build-essential \
+        git \
+        postgresql-server-dev-${POSTGRES_VERSION} \
+        default-libmysqlclient-dev && \
     rm -rf /var/lib/apt/lists/*
 
 # Install mysql_fdw
@@ -26,15 +24,17 @@ RUN git clone https://github.com/EnterpriseDB/mysql_fdw.git
 WORKDIR /mysql_fdw
 RUN make USE_PGXS=1
 
-
 # Build libssl for wrappers
-FROM ubuntu:22.04 AS build-libssl
+FROM --platform=linux/arm64 ubuntu:22.04 AS build-libssl
 
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt update && \
-    apt install -y \
-    build-essential \
-    git && \
+
+RUN rm -rf /var/lib/apt/lists/* && \
+    apt-get clean && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+        build-essential \
+        git && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build
@@ -42,12 +42,12 @@ RUN git clone --branch OpenSSL_1_1_1-stable https://github.com/openssl/openssl.g
 WORKDIR /build/openssl
 RUN ./config && make && make install
 
-
 # Extend the Spilo image with the mysql_fdw extensions
-FROM ghcr.io/zalando/spilo-${POSTGRES_VERSION}:${SPILO_VERSION}
+FROM --platform=linux/arm64 ghcr.io/zalando/spilo-${POSTGRES_VERSION}:${SPILO_VERSION}
 ARG POSTGRES_VERSION
 ARG WRAPPERS_VERSION
-ARG TARGETARCH
+
+RUN sed -i 's|http://archive.ubuntu.com/ubuntu/|http://ports.ubuntu.com/ubuntu-ports/|g' /etc/apt/sources.list
 
 # Install precompiled supabase wrappers extensions
 RUN set -eux; \
@@ -58,7 +58,11 @@ RUN set -eux; \
     *) echo "Unsupported arch: ${ARCH}"; exit 1;; \
     esac;
 
-RUN apt update && apt install default-libmysqlclient-dev -y && rm -rf /var/lib/apt/lists/*
+RUN rm -rf /var/lib/apt/lists/* && \
+    apt-get clean && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends default-libmysqlclient-dev && \
+    rm -rf /var/lib/apt/lists/*
 
 RUN curl -L "https://github.com/supabase/wrappers/releases/download/v${WRAPPERS_VERSION}/wrappers-v${WRAPPERS_VERSION}-pg${POSTGRES_VERSION}-${TARGETARCH}-linux-gnu.deb" -o wrappers.deb && \
     dpkg --install wrappers.deb && \
