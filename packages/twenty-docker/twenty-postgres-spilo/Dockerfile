@@ -7,6 +7,12 @@ FROM debian:bookworm AS build-mysql_fdw
 ARG POSTGRES_VERSION
 
 ENV DEBIAN_FRONTEND=noninteractive
+
+# Add this block before apt update
+RUN echo "Acquire::http::Pipeline-Depth 0;" > /etc/apt/apt.conf.d/99custom && \
+    echo "Acquire::http::No-Cache true;" >> /etc/apt/apt.conf.d/99custom && \
+    echo "Acquire::BrokenProxy    true;" >> /etc/apt/apt.conf.d/99custom
+
 RUN apt update && \
     apt install -y \
     build-essential \
