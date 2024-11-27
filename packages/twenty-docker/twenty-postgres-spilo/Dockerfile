@@ -3,12 +3,14 @@ ARG SPILO_VERSION=3.2-p1
 ARG WRAPPERS_VERSION=0.2.0
 
 # Build the mysql_fdw extension
-FROM --platform=linux/arm64 debian:bookworm AS build-mysql_fdw
+FROM debian:bookworm AS build-mysql_fdw
 ARG POSTGRES_VERSION
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Clean apt lists and update
+# Add APT configuration to ignore future timestamps
+RUN echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/no-check-valid-until
+
 RUN rm -rf /var/lib/apt/lists/* && \
     apt-get clean && \
     apt-get update && \
@@ -25,9 +27,12 @@ WORKDIR /mysql_fdw
 RUN make USE_PGXS=1
 
 # Build libssl for wrappers
-FROM --platform=linux/arm64 ubuntu:22.04 AS build-libssl
+FROM ubuntu:22.04 AS build-libssl
 
 ENV DEBIAN_FRONTEND=noninteractive
+
+# Add APT configuration to ignore future timestamps
+RUN echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/no-check-valid-until
 
 RUN rm -rf /var/lib/apt/lists/* && \
     apt-get clean && \
@@ -43,7 +48,7 @@ WORKDIR /build/openssl
 RUN ./config && make && make install
 
 # Extend the Spilo image with the mysql_fdw extensions
-FROM --platform=linux/arm64 ghcr.io/zalando/spilo-${POSTGRES_VERSION}:${SPILO_VERSION}
+FROM ghcr.io/zalando/spilo-${POSTGRES_VERSION}:${SPILO_VERSION}
 ARG POSTGRES_VERSION
 ARG WRAPPERS_VERSION
 
